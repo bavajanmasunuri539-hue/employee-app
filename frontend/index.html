@@ -1,66 +1,62 @@
+```html
 <!DOCTYPE html>
-
 <html>
 <head>
     <title>Employee Management</title>
 
-```
-<style>
-    body {
-        font-family: Arial;
-        margin: 40px;
-        text-align: center;
-    }
+    <style>
+        body {
+            font-family: Arial;
+            margin: 40px;
+            text-align: center;
+        }
 
-    h1 {
-        color: #222;
-    }
+        h1 {
+            color: #222;
+        }
 
-    img {
-        width: 200px;
-        margin: 20px;
-    }
+        img {
+            width: 200px;
+            margin: 20px;
+        }
 
-    button {
-        padding: 10px 20px;
-        cursor: pointer;
-    }
+        button {
+            padding: 10px 20px;
+            cursor: pointer;
+        }
 
-    #employees {
-        margin-top: 20px;
-    }
-</style>
-```
-
+        #employees {
+            margin-top: 20px;
+        }
+    </style>
 </head>
 
 <body>
 
-```
-<h1>Employee Management Application</h1>
+    <h1>Employee Management Application</h1>
 
-<p>Frontend is running on Amazon EKS.</p>
+    <p>Frontend is running on Amazon EKS.</p>
 
-<img src="employee.png" alt="Employee">
+    <img src="/employee.png" alt="Employee">
 
-<br>
+    <br>
 
-<button onclick="loadEmployees()">Load Employees</button>
+    <button onclick="loadEmployees()">Load Employees</button>
 
-<div id="employees"></div>
+    <div id="employees"></div>
 
-<script>
-    async function loadEmployees() {
-        const response = await fetch("/api/employees");
-        const employees = await response.json();
+    <script>
+        async function loadEmployees() {
+            const response = await fetch("/api/employees");
+            const employees = await response.json();
 
-        document.getElementById("employees").innerHTML =
-            employees.map(e =>
-                `<p><b>${e.name}</b> - ${e.role}</p>`
-            ).join("");
-    }
-</script>
-```
+            document.getElementById("employees").innerHTML =
+                employees.map(e =>
+                    `<p><b>${e.name}</b> - ${e.role}</p>`
+                ).join("");
+        }
+    </script>
 
 </body>
 </html>
+```
