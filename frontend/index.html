@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Employee Management</title>
+    <style>
+        body {
+            font-family: Arial;
+            margin: 40px;
+        }
+        h1 {
+            color: #222;
+        }
+        button {
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+        #employees {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Employee Management Application</h1>
+
+<p>Frontend is running on Amazon EKS.</p>
+
+<button onclick="loadEmployees()">Load Employees</button>
+
+<div id="employees"></div>
+
+<script>
+async function loadEmployees() {
+    const response = await fetch("/api/employees");
+    const employees = await response.json();
+
+    document.getElementById("employees").innerHTML =
+        employees.map(e =>
+            `<p><b>${e.name}</b> - ${e.role}</p>`
+        ).join("");
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,78 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  AWS_REGION: ap-south-1
+  EKS_CLUSTER_NAME: employee-cluster
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build frontend image
+        run: |
+          docker build -t employee-frontend ./frontend
+
+      - name: Build backend image
+        run: |
+          docker build -t employee-backend ./backend
+
+      - name: Push frontend image
+        run: |
+          docker tag employee-frontend:latest \
+            ${{ steps.ecr.outputs.registry }}/employee-frontend:latest
+
+          docker push \
+            ${{ steps.ecr.outputs.registry }}/employee-frontend:latest
+
+      - name: Push backend image
+        run: |
+          docker tag employee-backend:latest \
+            ${{ steps.ecr.outputs.registry }}/employee-backend:latest
+
+          docker push \
+            ${{ steps.ecr.outputs.registry }}/employee-backend:latest
+
+      - name: Update kubeconfig
+        run: |
+          aws eks update-kubeconfig \
+            --region $AWS_REGION \
+            --name $EKS_CLUSTER_NAME
+
+      - name: Deploy to EKS
+        run: |
+          sed -i "s|FRONTEND_ECR_IMAGE|${{ steps.ecr.outputs.registry }}/employee-frontend:latest|g" k8s/frontend.yaml
+
+          sed -i "s|BACKEND_ECR_IMAGE|${{ steps.ecr.outputs.registry }}/employee-backend:latest|g" k8s/backend.yaml
+
+          kubectl apply -f k8s/
+
+      - name: Check deployment
+        run: |
+          kubectl rollout status deployment/frontend
+          kubectl rollout status deployment/backend
+
+      - name: Show services
+        run: |
+          kubectl get pods
+          kubectl get svc
